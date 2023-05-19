@@ -864,6 +864,8 @@ const {EOL} = __nccwpck_require__(37);
 const {readFileSync, writeFileSync} = __nccwpck_require__(147);
 const {compute} = __nccwpck_require__(909);
 
+const delimiter = 'EOT';
+
 const {env} = process;
 const outputFile = env.GITHUB_OUTPUT;
 const outputs = compute(env, 'INPUT_');
@@ -876,10 +878,9 @@ function toOutput(key, delimiter, value) {
     return `${key}<<${delimiter}${EOL}${value}${EOL}${delimiter}${EOL}`;
 }
 
+const res = Object.entries(outputs).map(([name, val]) => toOutput(name, delimiter, val)).join('');
 try {
-    Object.entries(outputs).forEach(([name, res]) =>
-        writeFileSync(outputFile, toOutput(name, 'EOT', res), {encoding: 'utf8'})
-    );
+    writeFileSync(outputFile, res, {encoding: 'utf8'});
     console.log(`DEBUG: outputFile contents=${readFileSync(outputFile)}`);
 } catch (e) {
     // TODO Report write error properly.
