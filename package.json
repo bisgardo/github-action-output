@@ -3,20 +3,22 @@
   "version": "1.0.0",
   "description": "GitHub Action for evaluating and outputting named mustache.js expressions.",
   "author": "Michael Bisgaard Olesen",
+  "license": "MIT",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/bisgardo/github-action-output.git"
   },
-  "license": "MIT",
   "main": "index.js",
   "scripts": {
-    "build": "eslint . && ncc build index.js -o dist --source-map --license licenses.txt"
+    "build": "eslint . && ncc build index.js -o dist --source-map --license licenses.txt",
+    "test": "jest"
   },
   "dependencies": {
     "mustache": "^4.2.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.36.1",
-    "eslint": "^8.40.0"
+    "eslint": "^8.40.0",
+    "jest": "^29.5.0"
   }
 }

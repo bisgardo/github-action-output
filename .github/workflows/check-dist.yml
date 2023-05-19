@@ -29,7 +29,7 @@ jobs:
       run: npm ci
 
     - name: Rebuild the dist directory
-      run: npm run prepare
+      run: npm run build
 
     - name: Compare the expected and actual dist/ directories
       run: |
@@ -38,4 +38,3 @@ jobs:
           git diff
           exit 1
         fi
-      id: diff

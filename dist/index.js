@@ -1,6 +1,29 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 909:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const Mustache = __nccwpck_require__(272);
+
+// TODO Probably can't rely on the order of entries in 'env';
+//      need to eval nested expressions on demand (and cache).
+function compute(env, prefix) {
+    const outputs = {};
+    Object.entries(env).forEach(([key, template]) => {
+        if (key.startsWith(prefix)) {
+            const name = key.slice(prefix.length);
+            outputs[name] = Mustache.render(template, outputs);
+        }
+    });
+    return outputs;
+}
+
+module.exports = {compute};
+
+
+/***/ }),
+
 /***/ 272:
 /***/ (function(module) {
 
@@ -837,38 +860,29 @@ var __webpack_exports__ = {};
 // This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
 (() => {
 // Import std lib modules.
-const { EOL } = __nccwpck_require__(37);
-const { writeFileSync } = __nccwpck_require__(147);
-const Mustache = __nccwpck_require__(272);
+const {EOL} = __nccwpck_require__(37);
+const {writeFileSync} = __nccwpck_require__(147);
+const {compute} = __nccwpck_require__(909);
 
 const {env} = process;
+console.log('DEBUG: process.env:', env)
 const outputFile = env.GITHUB_OUTPUT;
-
-function compute(env, prefix) {
-    const outputs = {};
-    Object.entries(env).forEach(([key, expr]) => {
-        if (key.startsWith(prefix)) {
-            const name = key.slice(prefix.length);
-            outputs[name] = Mustache.render(expr, outputs);
-        }
-    });
-    return outputs;
-}
-
-const outputs = compute(env, "INPUT_");
+const outputs = compute(env, 'INPUT_');
 
 // Write result as an output (assuming that it's multiline).
 function toOutput(key, delimiter, value) {
     return `${key}<<${delimiter}${EOL}${value}${EOL}${delimiter}${EOL}`;
 }
+
 try {
     Object.entries(outputs).forEach(([name, res]) =>
-        writeFileSync(outputFile, toOutput(name, 'EOT', res), { encoding: 'utf8' })
+        writeFileSync(outputFile, toOutput(name, 'EOT', res), {encoding: 'utf8'})
     );
 } catch (e) {
     // TODO Report write error properly.
     console.error(`error: cannot write output file ${outputFile}:`, e);
 }
+
 })();
 
 module.exports = __webpack_exports__;
