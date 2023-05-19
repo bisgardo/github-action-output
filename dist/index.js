@@ -861,14 +861,15 @@ var __webpack_exports__ = {};
 (() => {
 // Import std lib modules.
 const {EOL} = __nccwpck_require__(37);
-const {writeFileSync} = __nccwpck_require__(147);
+const {readFileSync, writeFileSync} = __nccwpck_require__(147);
 const {compute} = __nccwpck_require__(909);
 
 const {env} = process;
 const outputFile = env.GITHUB_OUTPUT;
 const outputs = compute(env, 'INPUT_');
 
-console.log(`DEBUG: outputs=${JSON.stringify(outputs)}`)
+console.log(`DEBUG: outputFile=${outputFile}`);
+console.log(`DEBUG: outputs=${JSON.stringify(outputs)}`);
 
 // Write result as an output (assuming that it's multiline).
 function toOutput(key, delimiter, value) {
@@ -879,6 +880,7 @@ try {
     Object.entries(outputs).forEach(([name, res]) =>
         writeFileSync(outputFile, toOutput(name, 'EOT', res), {encoding: 'utf8'})
     );
+    console.log(`DEBUG: outputFile contents=${readFileSync(outputFile)}`);
 } catch (e) {
     // TODO Report write error properly.
     console.error(`error: cannot write output file ${outputFile}:`, e);
