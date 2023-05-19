@@ -6,13 +6,15 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 const Mustache = __nccwpck_require__(272);
 
-// TODO Probably can't rely on the order of entries in 'env';
-//      need to eval nested expressions on demand (and cache).
+// It actually looks like we can rely on the order or inputs!
+// Well, for now at least...
 function compute(env, prefix) {
     const outputs = {};
     Object.entries(env).forEach(([key, template]) => {
+        console.log(`DEBUG: key=${key} template=${template}`)
         if (key.startsWith(prefix)) {
-            const name = key.slice(prefix.length);
+            const name = key.slice(prefix.length).toLowerCase();
+            console.log(`DEBUG: name=${name}`)
             outputs[name] = Mustache.render(template, outputs);
         }
     });
@@ -865,7 +867,6 @@ const {writeFileSync} = __nccwpck_require__(147);
 const {compute} = __nccwpck_require__(909);
 
 const {env} = process;
-console.log('DEBUG: process.env:', env)
 const outputFile = env.GITHUB_OUTPUT;
 const outputs = compute(env, 'INPUT_');
 

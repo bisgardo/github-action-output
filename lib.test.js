@@ -19,3 +19,8 @@ test('entries of fixed and computed values, referencing before defining', () => 
     const res = compute({'prefix_key2': 'key1={{key1}}', 'prefix_key1': 'value'}, 'prefix_');
     expect(res).toEqual({'key1': 'value', 'key2': 'key1='});
 });
+
+test('key is lowercased', () => {
+    const res = compute({'PREFIX_KEY': 'value'}, 'PREFIX_');
+    expect(res).toEqual({'key': 'value'});
+});

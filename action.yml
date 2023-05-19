@@ -1,12 +1,6 @@
-name: "regex-parse"
-description: "Match and parse an input string against a given regex pattern."
-inputs:
-  pattern:
-    description: "regex pattern"
-    required: true
-  input:
-    description: "input string to match and parse"
-    required: true
+name: "output"
+description: "Evaluate and output named mustache.js expressions."
+inputs: {}
 outputs: {}
 runs:
   using: "node16"

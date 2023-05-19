@@ -4,7 +4,6 @@ const {writeFileSync} = require('fs');
 const {compute} = require('./lib');
 
 const {env} = process;
-console.log('DEBUG: process.env:', env)
 const outputFile = env.GITHUB_OUTPUT;
 const outputs = compute(env, 'INPUT_');
 
