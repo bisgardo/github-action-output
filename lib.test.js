@@ -24,3 +24,8 @@ test('key is lowercased', () => {
     const res = compute({'PREFIX_KEY': 'value'}, 'PREFIX_');
     expect(res).toEqual({'key': 'value'});
 });
+
+test('substitutions are not HTML escaped', () => {
+    const res = compute({'prefix_key1': 'val=ue', 'prefix_key2': 'key1={{key1}}'}, 'prefix_');
+    expect(res).toEqual({'key1': 'val=ue', 'key2': 'key1=val=ue'});
+});

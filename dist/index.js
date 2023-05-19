@@ -6,6 +6,11 @@ require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 
 const Mustache = __nccwpck_require__(272);
 
+// Identity function to be used as escape function to disable escaping.
+function escape(str) {
+    return str;
+}
+
 // It actually looks like we can rely on the order or inputs!
 // Well, for now at least...
 function compute(env, prefix) {
@@ -13,7 +18,7 @@ function compute(env, prefix) {
     Object.entries(env).forEach(([key, template]) => {
         if (key.startsWith(prefix)) {
             const name = key.slice(prefix.length).toLowerCase();
-            outputs[name] = Mustache.render(template, outputs);
+            outputs[name] = Mustache.render(template, outputs, null, {escape});
         }
     });
     return outputs;
