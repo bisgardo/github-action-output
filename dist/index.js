@@ -11,10 +11,8 @@ const Mustache = __nccwpck_require__(272);
 function compute(env, prefix) {
     const outputs = {};
     Object.entries(env).forEach(([key, template]) => {
-        console.log(`DEBUG: key=${key} template=${template}`)
         if (key.startsWith(prefix)) {
             const name = key.slice(prefix.length).toLowerCase();
-            console.log(`DEBUG: name=${name}`)
             outputs[name] = Mustache.render(template, outputs);
         }
     });
@@ -869,6 +867,8 @@ const {compute} = __nccwpck_require__(909);
 const {env} = process;
 const outputFile = env.GITHUB_OUTPUT;
 const outputs = compute(env, 'INPUT_');
+
+console.log(`DEBUG: outputs=${JSON.stringify(outputs)}`)
 
 // Write result as an output (assuming that it's multiline).
 function toOutput(key, delimiter, value) {

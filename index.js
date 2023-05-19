@@ -7,6 +7,8 @@ const {env} = process;
 const outputFile = env.GITHUB_OUTPUT;
 const outputs = compute(env, 'INPUT_');
 
+console.log(`DEBUG: outputs=${JSON.stringify(outputs)}`)
+
 // Write result as an output (assuming that it's multiline).
 function toOutput(key, delimiter, value) {
     return `${key}<<${delimiter}${EOL}${value}${EOL}${delimiter}${EOL}`;
