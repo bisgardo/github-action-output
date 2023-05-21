@@ -1,4 +1,4 @@
-name: "output"
+name: "echo"
 description: "Evaluate and output named mustache.js expressions."
 inputs: {}
 outputs: {}

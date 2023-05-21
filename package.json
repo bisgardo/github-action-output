@@ -1,12 +1,12 @@
 {
-  "name": "github-action-output",
+  "name": "github-action-echo",
   "version": "1.0.0",
-  "description": "GitHub Action for evaluating and outputting named mustache.js expressions.",
+  "description": "GitHub Action for evaluating a shell expression and writing the result to a named output.",
   "author": "Michael Bisgaard Olesen",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bisgardo/github-action-output.git"
+    "url": "git+https://github.com/bisgardo/github-action-echo.git"
   },
   "main": "index.js",
   "scripts": {
@@ -14,7 +14,6 @@
     "test": "jest"
   },
   "dependencies": {
-    "mustache": "^4.2.0"
   },
   "devDependencies": {
     "@vercel/ncc": "^0.36.1",

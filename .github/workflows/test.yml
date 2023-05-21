@@ -28,10 +28,10 @@ jobs:
       id: my_step
       with:
         x: 'env.i=${{env.i}}'
-        z: 'according to x, {{x}}'
+        z: 'according to x, ${x}'
         y: |
-          {{&z}}.
-          That is, {{{x}}}.
+          ${z}.
+          That is, ${x}.
           Meaning that env.i is indeed ${{env.i}}.
     - run: |
         [ "${{steps.my_step.outputs.x}}" = "env.i=j" ]

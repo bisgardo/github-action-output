@@ -1,20 +1,43 @@
-const Mustache = require("mustache");
+const { exec } = require('child_process');
 
-// Identity function to be used as escape function to disable escaping.
-function escape(str) {
-    return str;
+function evalCmd(command, stdin) {
+    return new Promise((resolve, reject) => {
+        const cmd = exec(command, (error, stdout, stderr) => {
+            if (error) {
+                reject(error.message);
+            } else if (stderr) {
+                reject(stderr);
+            } else {
+                resolve(stdout);
+            }
+        });
+        cmd.stdin.write(stdin);
+        cmd.stdin.end();
+    });
+}
+
+function evalBash(cmd) {
+    return evalCmd(`/usr/bin/bash -s`, cmd)
+}
+
+
+function escape(val, ch) {
+    return val.replace(`${ch}`, `\\${ch}`);
 }
 
 // It actually looks like we can rely on the order or inputs!
 // Well, for now at least...
-function compute(env, prefix) {
+async function compute(envObj, prefix) {
     const outputs = {};
-    Object.entries(env).forEach(([key, template]) => {
+    let bashAssignments = '';
+    for (const [key, expr] of Object.entries(envObj)) {
         if (key.startsWith(prefix)) {
             const name = key.slice(prefix.length).toLowerCase();
-            outputs[name] = Mustache.render(template, outputs, null, {escape});
+            const res = await evalBash(bashAssignments + `echo -n "${escape(expr, `"`)}"`);
+            outputs[name] = res;
+            bashAssignments += `${name}='${escape(res, `'`)}';`;
         }
-    });
+    }
     return outputs;
 }
 
