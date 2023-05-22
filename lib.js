@@ -38,12 +38,10 @@ async function compute(envObj, prefix, shell) {
             const echo = `echo -n "${escape(expr, `"`)}"\n`;
             const script = shellAssignments + echo;
             const output = await evalShell(shell, script);
-            console.debug(`running script '${script}' yielded output '${output}'`);
             outputs[name] = output;
             shellAssignments += `${name}='${escape(output, `'`)}'\n`;
         }
     }
-    console.debug('outputs', outputs);
     return outputs;
 }
 
