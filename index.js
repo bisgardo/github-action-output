@@ -18,12 +18,12 @@ const entries = resolveEntries(env, "INPUT_");
 compute(entries, SHELL)
   .then((outputs) =>
     Object.entries(outputs)
-      .map(([name, val]) => toOutput(name, DELIMITER, val))
+      .map(([name, res]) => toOutput(name, DELIMITER, res))
       .join("")
   )
-  .then((outputFileContents) => {
-    writeFileSync(outputFile, outputFileContents, { encoding: "utf8" });
-  })
+  .then((outputFileContents) =>
+    writeFileSync(outputFile, outputFileContents, { encoding: "utf8" })
+  )
   .catch((err) =>
     // TODO Report write error properly.
     console.error(`error: cannot write output file ${outputFile}:`, err)
