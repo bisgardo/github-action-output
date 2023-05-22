@@ -1,7 +1,8 @@
-name: "output"
-description: "Evaluate and output named mustache.js expressions."
-inputs: {}
-outputs: {}
+name: "echo"
+description: "Evaluate and export output of bash commands."
+author: Michael Bisgaard Olesen
+inputs: {} # dynamic
+outputs: {} # same as inputs
 runs:
   using: "node16"
-  main: "dist/index.js"
+  main: "index.js"

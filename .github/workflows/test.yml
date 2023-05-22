@@ -1,42 +1,44 @@
 name: Test
 on:
   push:
-    branches:
-    - main
     paths-ignore:
-    - '**.md'
+      - "**.md"
   pull_request:
     paths-ignore:
-    - '**.md'
-
-env:
-  i: j
+      - "**.md"
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm run lint
   unit_tests:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - run: npm ci
-    - run: npm test
-
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm test
   apply:
     runs-on: ubuntu-latest
+    env:
+      i: j
     steps:
-    - uses: actions/checkout@v3
-    - uses: ./
-      id: my_step
-      with:
-        x: 'env.i=${{env.i}}'
-        z: 'according to x, {{x}}'
-        y: |
-          {{&z}}.
-          That is, {{{x}}}.
-          Meaning that env.i is indeed ${{env.i}}.
-    - run: |
-        [ "${{steps.my_step.outputs.x}}" = "env.i=j" ]
-        [ "${{steps.my_step.outputs.z}}" = "according to x, env.i=j" ]
-        [ "${{steps.my_step.outputs.y}}" = "according to x, env.i=j.
-        That is, env.i=j.
-        Meaning that env.i is indeed j.
-        " ]
+      - uses: actions/checkout@v3
+      - uses: ./
+        id: my_step
+        with:
+          x: "env.i=${{env.i}}"
+          z: "according to x, ${x}"
+          y: |
+            ${z}.
+            That is, ${x}.
+            Meaning that env.i is indeed ${{env.i}}.
+      - run: |
+          [ "${{steps.my_step.outputs.x}}" = "env.i=j" ]
+          [ "${{steps.my_step.outputs.z}}" = "according to x, env.i=j" ]
+          [ "${{steps.my_step.outputs.y}}" = "according to x, env.i=j.
+          That is, env.i=j.
+          Meaning that env.i is indeed j.
+          " ]
