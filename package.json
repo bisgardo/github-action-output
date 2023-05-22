@@ -13,8 +13,7 @@
     "lint": "eslint .",
     "test": "jest"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "eslint": "^8.40.0",
     "jest": "^29.5.0"
