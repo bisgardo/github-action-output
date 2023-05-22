@@ -2,10 +2,14 @@ name: Test
 on:
   push:
     paths-ignore:
+<<<<<<< Updated upstream
       - "**.md"
   pull_request:
     paths-ignore:
       - "**.md"
+=======
+    - '**.md'
+>>>>>>> Stashed changes
 
 jobs:
   lint:
