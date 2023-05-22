@@ -1,8 +1,8 @@
 const { exec } = require('child_process');
 
-function evalCmd(command, stdin) {
+function evalCmd(cmd, input) {
     return new Promise((resolve, reject) => {
-        const cmd = exec(command, (error, stdout, stderr) => {
+        const process = exec(cmd, (error, stdout, stderr) => {
             if (error) {
                 reject(error.message);
             } else if (stderr) {
@@ -11,16 +11,16 @@ function evalCmd(command, stdin) {
                 resolve(stdout);
             }
         });
-        const {stdin} = cmd;
-        stdin.write(stdin);
+        const {stdin} = process;
+        stdin.write(input);
         stdin.end();
     });
 }
 
-function evalBash(cmd) {
-    return evalCmd(`/usr/bin/bash -s`, cmd)
+function evalShell(shell, script) {
+    // Assuming that the shell supports flag '-s' for running stdin.
+    return evalCmd(`${shell} -s`, script)
 }
-
 
 function escape(val, ch) {
     return val.replace(`${ch}`, `\\${ch}`);
@@ -28,16 +28,17 @@ function escape(val, ch) {
 
 // It actually looks like we can rely on the order or inputs!
 // Well, for now at least...
-// TODO Split in two to keep async part minimal (i.e. map/filter separately).
-async function compute(envObj, prefix) {
+// TODO Split in two to keep async part minimal (i.e. map/filter separately - one will take 'prefix', the other will take 'shell').
+async function compute(envObj, prefix, shell) {
     const outputs = {};
-    let bashAssignments = '';
+    let shellAssignments = '';
     for (const [key, expr] of Object.entries(envObj)) {
         if (key.startsWith(prefix)) {
             const name = key.slice(prefix.length).toLowerCase();
-            const res = await evalBash(bashAssignments + `echo -n "${escape(expr, `"`)}"`);
-            outputs[name] = res;
-            bashAssignments += `${name}='${escape(res, `'`)}';`;
+            const script = `echo -n "${escape(expr, `"`)}"\n`;
+            const output = await evalShell(shell, shellAssignments + script);
+            outputs[name] = output;
+            shellAssignments += `${name}='${escape(output, `'`)}'\n`;
         }
     }
     return outputs;

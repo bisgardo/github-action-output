@@ -1,5 +1,6 @@
 name: "echo"
 description: "Evaluate and export output of bash commands."
+author: Michael Bisgaard Olesen
 inputs: {} # dynamic
 outputs: {} # same as inputs
 runs:
