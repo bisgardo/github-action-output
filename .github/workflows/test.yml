@@ -7,19 +7,23 @@ on:
     paths-ignore:
     - '**.md'
 
-env:
-  i: j
-
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - run: npm ci
+      - run: npm lint
   unit_tests:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
     - run: npm ci
     - run: npm test
-
   apply:
     runs-on: ubuntu-latest
+    env:
+      i: j
     steps:
     - uses: actions/checkout@v3
     - uses: ./
