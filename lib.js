@@ -35,12 +35,15 @@ async function compute(envObj, prefix, shell) {
     for (const [key, expr] of Object.entries(envObj)) {
         if (key.startsWith(prefix)) {
             const name = key.slice(prefix.length).toLowerCase();
-            const script = `echo -n "${escape(expr, `"`)}"\n`;
-            const output = await evalShell(shell, shellAssignments + script);
+            const echo = `echo -n "${escape(expr, `"`)}"\n`;
+            const script = shellAssignments + echo;
+            const output = await evalShell(shell, script);
+            console.debug(`running script '${script}' yielded output '${output}'`);
             outputs[name] = output;
             shellAssignments += `${name}='${escape(output, `'`)}'\n`;
         }
     }
+    console.debug('outputs', outputs);
     return outputs;
 }
 

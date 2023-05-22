@@ -18,7 +18,7 @@ function toOutput(key, delimiter, value) {
 const res = Object.entries(outputs).map(([name, val]) => toOutput(name, DELIMITER, val)).join('');
 try {
     writeFileSync(outputFile, res, {encoding: 'utf8'});
-    console.log(`DEBUG: outputFile contents=${readFileSync(outputFile)}`);
+    console.debug(`outputFile contents: ${readFileSync(outputFile)}`);
 } catch (e) {
     // TODO Report write error properly.
     console.error(`error: cannot write output file ${outputFile}:`, e);
