@@ -160,5 +160,8 @@ test("bash expression in output is not evaluated in assignment", async () => {
   expect(res).toEqual({ echo_x: "$(echo x)", echo_echo_x: "$(echo x)" });
 });
 
-// TODO Add negative tests:
-//      - unclosed subshell (backtick), substitution, etc.
+test("unclosed backtick (subshell) yields error", () => {
+    expect.assertions(1);
+    const expected = new Error(`script\n  echo -n "\`"\nfailed with error\n  /bin/bash: line 1: unexpected EOF while looking for matching \`\`'\n  /bin/bash: line 2: syntax error: unexpected end of file\n`);
+    return compute([{key: "err", expr: "`"}], BASH).catch(e => expect(e).toEqual(expected));
+});

@@ -1,14 +1,17 @@
 const { exec } = require("child_process");
 
+function indent(str) {
+  return str.replaceAll(/^/gm, '  ')
+}
+
 function evalCmd(cmd, input) {
   return new Promise((resolve, reject) => {
-    const process = exec(cmd, (error, stdout, stderr) => {
-      if (error) {
-        reject(error.message);
-      } else if (stderr) {
-        reject(stderr);
+    const process = exec(cmd, (err, stdout, stderr) => {
+      const output = stdout + stderr;
+      if (err) {
+        reject(output.trim());
       } else {
-        resolve(stdout);
+        resolve(output);
       }
     });
     const { stdin } = process;
@@ -17,13 +20,13 @@ function evalCmd(cmd, input) {
   });
 }
 
-function evalShell(shell, script) {
+async function evalShell(shell, script) {
   // Assuming that the shell supports flag '-s' for running stdin.
-  return evalCmd(`${shell} -s`, script);
-}
-
-function escape(val, ch) {
-  return val.replaceAll(`${ch}`, `\\${ch}`);
+  try {
+    return await evalCmd(`${shell} -s`, script);
+  } catch (msg) {
+    throw new Error(`script\n${indent(script)}\nfailed with error\n${indent(msg)}\n`);
+  }
 }
 
 function resolveEntries(envObj, prefix) {
@@ -42,9 +45,8 @@ async function compute(entries, shell) {
   for (const { name, expr } of entries) {
     // Wrap expr in double quotes to support (and preserve) spacing.
     // Double quotes in the string are escaped by prepending '\'.
-    const echo = `echo -n "${expr.replaceAll(`"`, `\\"`)}"\n`;
+    const echo = `echo -n "${expr.replaceAll(`"`, `\\"`)}"`;
     const script = shellAssignments + echo;
-    // TODO Report error properly (ideally including the command that was run).
     const output = await evalShell(shell, script);
     outputs[name] = output;
     // Wrap output in single quotes to prevent any further expansion.
