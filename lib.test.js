@@ -20,7 +20,7 @@ test('entries of fixed and computed values, referencing before defining', async 
     expect(res).toEqual({'key1': 'value', 'key2': 'key1='});
 });
 
-test('key is lowercased', async () => {
+test('key is lower-cased', async () => {
     const res = await compute({'PREFIX_KEY': 'value'}, 'PREFIX_');
     expect(res).toEqual({'key': 'value'});
 });
@@ -31,3 +31,4 @@ test('substitutions are not HTML escaped', async () => {
 });
 
 // TODO Add test that expression outputting expression isn't re-evaluated in assignments.
+// TODO Test use of subshells.

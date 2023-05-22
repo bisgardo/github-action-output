@@ -11,8 +11,9 @@ function evalCmd(command, stdin) {
                 resolve(stdout);
             }
         });
-        cmd.stdin.write(stdin);
-        cmd.stdin.end();
+        const {stdin} = cmd;
+        stdin.write(stdin);
+        stdin.end();
     });
 }
 
@@ -27,6 +28,7 @@ function escape(val, ch) {
 
 // It actually looks like we can rely on the order or inputs!
 // Well, for now at least...
+// TODO Split in two to keep async part minimal (i.e. map/filter separately).
 async function compute(envObj, prefix) {
     const outputs = {};
     let bashAssignments = '';

@@ -6,11 +6,9 @@ const {compute} = require('./lib');
 const delimiter = 'EOT';
 
 const {env} = process;
+console.debug(env);
 const outputFile = env.GITHUB_OUTPUT;
 const outputs = compute(env, 'INPUT_');
-
-console.log(`DEBUG: outputFile=${outputFile}`);
-console.log(`DEBUG: outputs=${JSON.stringify(outputs)}`);
 
 // Write result as an output (assuming that it's multiline).
 function toOutput(key, delimiter, value) {
