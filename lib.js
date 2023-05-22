@@ -44,6 +44,7 @@ async function compute(entries, shell) {
     // Double quotes in the string are escaped by prepending '\'.
     const echo = `echo -n "${expr.replaceAll(`"`, `\\"`)}"\n`;
     const script = shellAssignments + echo;
+    // TODO Report error properly (ideally including the command that was run).
     const output = await evalShell(shell, script);
     outputs[name] = output;
     // Wrap output in single quotes to prevent any further expansion.
