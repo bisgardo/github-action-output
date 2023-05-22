@@ -1,7 +1,7 @@
 // Import std lib modules.
 const { EOL } = require("os");
-const { readFileSync, writeFileSync } = require("fs");
-const { compute } = require("./lib");
+const { writeFileSync } = require("fs");
+const { compute, resolveEntries } = require("./lib");
 
 // Write result as an output (assuming that it's multiline).
 function toOutput(key, delimiter, value) {
@@ -14,7 +14,8 @@ const SHELL = "/bin/bash"; // TODO determine based on OS ('https://github.com/ac
 const { env } = process;
 const outputFile = env.GITHUB_OUTPUT;
 
-compute(env, "INPUT_", SHELL)
+const entries = resolveEntries(env, "INPUT_");
+compute(entries, SHELL)
   .then((outputs) =>
     Object.entries(outputs)
       .map(([name, val]) => toOutput(name, DELIMITER, val))
@@ -22,7 +23,6 @@ compute(env, "INPUT_", SHELL)
   )
   .then((outputFileContents) => {
     writeFileSync(outputFile, outputFileContents, { encoding: "utf8" });
-    console.debug("outputFileContents:", readFileSync(outputFile));
   })
   .catch((err) =>
     // TODO Report write error properly.

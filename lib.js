@@ -26,23 +26,27 @@ function escape(val, ch) {
   return val.replace(`${ch}`, `\\${ch}`);
 }
 
+function resolveEntries(envObj, prefix) {
+  return Object.entries(envObj)
+    .filter(([key]) => key.startsWith(prefix))
+    .map(([key, expr]) => ({
+      name: key.slice(prefix.length).toLowerCase(),
+      expr,
+    }));
+}
 // It actually looks like we can rely on the order or inputs!
 // Well, for now at least...
-// TODO Split in two to keep async part minimal (i.e. map/filter separately - one will take 'prefix', the other will take 'shell').
-async function compute(envObj, prefix, shell) {
+async function compute(entries, shell) {
   const outputs = {};
   let shellAssignments = "";
-  for (const [key, expr] of Object.entries(envObj)) {
-    if (key.startsWith(prefix)) {
-      const name = key.slice(prefix.length).toLowerCase();
-      const echo = `echo -n "${escape(expr, `"`)}"\n`;
-      const script = shellAssignments + echo;
-      const output = await evalShell(shell, script);
-      outputs[name] = output;
-      shellAssignments += `${name}='${escape(output, `'`)}'\n`;
-    }
+  for (const { name, expr } of entries) {
+    const echo = `echo -n "${escape(expr, `"`)}"\n`;
+    const script = shellAssignments + echo;
+    const output = await evalShell(shell, script);
+    outputs[name] = output;
+    shellAssignments += `${name}='${escape(output, `'`)}'\n`;
   }
   return outputs;
 }
 
-module.exports = { compute };
+module.exports = { resolveEntries, compute };
