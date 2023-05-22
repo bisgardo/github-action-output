@@ -23,7 +23,7 @@ function evalShell(shell, script) {
 }
 
 function escape(val, ch) {
-  return val.replace(`${ch}`, `\\${ch}`);
+  return val.replaceAll(`${ch}`, `\\${ch}`);
 }
 
 function resolveEntries(envObj, prefix) {
@@ -40,11 +40,16 @@ async function compute(entries, shell) {
   const outputs = {};
   let shellAssignments = "";
   for (const { name, expr } of entries) {
-    const echo = `echo -n "${escape(expr, `"`)}"\n`;
+    // Wrap expr in double quotes to support (and preserve) spacing.
+    // Double quotes in the string are escaped by prepending '\'.
+    const echo = `echo -n "${expr.replaceAll(`"`, `\\"`)}"\n`;
     const script = shellAssignments + echo;
     const output = await evalShell(shell, script);
     outputs[name] = output;
-    shellAssignments += `${name}='${escape(output, `'`)}'\n`;
+    // Wrap output in single quotes to prevent any further expansion.
+    // Single quotes in the string are escaped by adding an ending single quote,
+    // then an escaped single quote and a re-opening single quote.
+    shellAssignments += `${name}='${output.replaceAll(`'`, `'\\''`)}'\n`;
   }
   return outputs;
 }
