@@ -35,8 +35,8 @@ jobs:
     - uses: bisgardo/github-action-echo@v1
       id: my_step
       with:
-        repo: '${{GITHUB_REPOSITORY}}'
-        length: '${#repo}'
+        repo: "${{GITHUB_REPOSITORY}}"
+        length: "${#repo}"
         text: "Repo '${repo}' has ${length} characters"
     - run: |
         echo "repo: ${{steps.my_step.outputs.repo}}"      # "repo: bisgardo/github-action-echo"

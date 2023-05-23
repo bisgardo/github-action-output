@@ -112,7 +112,7 @@ test("use computed value", async () => {
   expect(res).toEqual({ key1: "x", key2: "x" });
 });
 
-test("single and double quotes are handled correctly", async () => {
+test("single and double quotes are escaped such that they pass through unmodified", async () => {
   const res = await compute(
     [
       { name: "key1", expr: `'` },
@@ -130,16 +130,46 @@ test("single and double quotes are handled correctly", async () => {
   });
 });
 
-test("backticks mean subshell", async () => {
+test("double quotes are not escaped in substitutions", async () => {
   const res = await compute(
     [
-      {
-        name: "key",
-        expr: "`echo x`",
-      },
+      { name: "a", expr: '$(echo "x")' },
+      { name: "b", expr: '`echo "x"`' },
+      { name: "c", expr: '$(echo "$(echo "x")")' },
+      { name: "d", expr: '`echo "$(echo "x")"`' },
+      { name: "e", expr: '$(echo "`echo "x"`")' },
+      { name: "f", expr: `'$(echo "x")'` },
+      { name: "g", expr: `$(echo '$(echo "x")')` },
+      { name: "h", expr: '"`echo "(echo "y""`)"' },
+      { name: "i", expr: '${z-"x"}' },
     ],
     BASH
   );
+  expect(res).toEqual({
+    a: "x",
+    b: "x",
+    c: "x",
+    d: "x",
+    e: "x",
+    f: `'x'`,
+    g: `$(echo "x")`,
+    h: '"(echo y)"',
+    i: "x",
+  });
+});
+
+test("double quotes are escaped in escaped substitution", async () => {
+  const res = await compute([{ name: "a", expr: '\\$(echo "x")' }], BASH);
+  expect(res).toEqual({ a: '$(echo "x")' });
+});
+
+test("double quotes are not escaped between substitutions", async () => {
+    const res = await compute([{ name: "a", expr: '$(echo "x") "y" $(echo "z")' }], BASH);
+    expect(res).toEqual({ a: 'x "y" z' });
+});
+
+test("backticks mean command substitution", async () => {
+  const res = await compute([{ name: "key", expr: "`echo x`" }], BASH);
   expect(res).toEqual({ key: "x" });
 });
 
@@ -160,8 +190,12 @@ test("bash expression in output is not evaluated in assignment", async () => {
   expect(res).toEqual({ echo_x: "$(echo x)", echo_echo_x: "$(echo x)" });
 });
 
-test("unclosed backtick (subshell) yields error", () => {
-    expect.assertions(1);
-    const expected = new Error(`script\n  echo -n "\`"\nfailed with error\n  /bin/bash: line 1: unexpected EOF while looking for matching \`\`'\n  /bin/bash: line 2: syntax error: unexpected end of file\n`);
-    return compute([{key: "err", expr: "`"}], BASH).catch(e => expect(e).toEqual(expected));
+test("unclosed backtick (command substitution) yields error", () => {
+  expect.assertions(1);
+  const expected = new Error(
+    `script\n  echo -n "\`"\nfailed with error\n  /bin/bash: line 1: unexpected EOF while looking for matching \`\`'\n  /bin/bash: line 2: syntax error: unexpected end of file\n`
+  );
+  return compute([{ key: "err", expr: "`" }], BASH).catch((e) =>
+    expect(e).toEqual(expected)
+  );
 });
