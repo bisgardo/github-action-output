@@ -159,13 +159,49 @@ test("double quotes are not escaped in substitutions", async () => {
 });
 
 test("double quotes are escaped in escaped substitution", async () => {
-  const res = await compute([{ name: "a", expr: '\\$(echo "x")' }], BASH);
-  expect(res).toEqual({ a: '$(echo "x")' });
+  const res = await compute(
+    [
+      { name: "a", expr: '\\$(echo "x")' },
+      { name: "b", expr: '\\`echo "x"\\`' },
+    ],
+    BASH
+  );
+  expect(res).toEqual({ a: '$(echo "x")', b: '`echo "x"`' });
 });
 
 test("double quotes are not escaped between substitutions", async () => {
-    const res = await compute([{ name: "a", expr: '$(echo "x") "y" $(echo "z")' }], BASH);
-    expect(res).toEqual({ a: 'x "y" z' });
+  const res = await compute(
+    [{ name: "a", expr: '$(echo "x") "y" $(echo "z")' }],
+    BASH
+  );
+  expect(res).toEqual({ a: 'x "y" z' });
+});
+
+test("escaped double quotes are escaped again", async () => {
+  const res = await compute([{ name: "a", expr: '\\"' }], BASH);
+  expect(res).toEqual({ a: '\\"' });
+});
+
+test("quoted substitution end does not match", async () => {
+  const res = await compute(
+    [
+      { name: "a", expr: '$(echo ")")' },
+      { name: "b", expr: "$(echo ')')" },
+      { name: "c", expr: '${x-"}"}' },
+      { name: "d", expr: "${x-'}'}" },
+      { name: "e", expr: '$(echo "$(echo x))")' },
+      { name: "f", expr: "$(echo '$(echo x))')" },
+    ],
+    BASH
+  );
+  expect(res).toEqual({
+    a: ")",
+    b: ")",
+    c: "}",
+    d: "'}'",
+    e: "x)",
+    f: "$(echo x))",
+  });
 });
 
 test("backticks mean command substitution", async () => {

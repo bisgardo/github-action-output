@@ -48,39 +48,51 @@ function escapeDoubleQuotesInDoubleQuotes(str) {
   const closingSymbols = []; // stack of symbols that close the currently open substitutions
   let prev = null;
   let beforePrev = null;
-  let insideSingleQuotes = false;
   let res = "";
   let fromExprIdx = 0;
   for (const [idx, cur] of Array.from(str).entries()) {
-    // A character following '\' will never be escaped.
-    if (prev !== "\\") {
-      if (cur === `'`) {
-        insideSingleQuotes = !insideSingleQuotes;
-      } else if (closingSymbols.length && closingSymbols[closingSymbols.length - 1] === cur) {
-        // Found matching end symbol to the topmost open substitution.
-        closingSymbols.pop();
-      } else if (cur === "`") {
-        // Found unescaped '`'. To be closed by another matching (unescaped) '`'.
-        closingSymbols.push("`");
-      } else if (beforePrev !== "\\" && prev === "$" && cur === "(") {
-        // Found unescaped '$('. To be closed by a matching (unescaped) ')'.
-        closingSymbols.push(")");
-      } else if (beforePrev !== "\\" && prev === "$" && cur === "{") {
-        // Found unescaped '${'. To be closed by a matching (unescaped) '}'.
-        closingSymbols.push("}");
-      } else if (!closingSymbols.length && cur === `"`) {
-        // Not inside a substitution: escape double quotes by flushing 'expr' into 'res' up to current 'idx' and writing the escape symbol.
+    const currentClosingSymbol =
+      closingSymbols.length && closingSymbols[closingSymbols.length - 1];
+    if (prev !== "\\" && currentClosingSymbol === cur) {
+      // Found matching (unescaped) end symbol to the topmost open substitution: popping the substitution from the stack.
+      closingSymbols.pop();
+    } else if (prev !== "\\" && cur === "`") {
+      // Found unescaped '`'. To be closed by another matching (unescaped) '`'.
+      closingSymbols.push("`");
+    } else if (beforePrev !== "\\" && prev === "$" && cur === "(") {
+      // Found unescaped '$('. To be closed by a matching (unescaped) ')'.
+      closingSymbols.push(")");
+    } else if (beforePrev !== "\\" && prev === "$" && cur === "{") {
+      // Found unescaped '${'. To be closed by a matching (unescaped) '}'.
+      closingSymbols.push("}");
+    } else if (closingSymbols.length && currentClosingSymbol !== '"' && prev !== "\\" && cur === "'") {
+      // Found unescaped single quote inside an expansion but not inside double quotes (nor single quotes because that isn't possible).
+      // To be closed by a matching (unescaped) single quote.
+      closingSymbols.push("'");
+    } else if (cur === `"` && currentClosingSymbol !== "'") {
+      // Found (escaped or unescaped) double quote not inside single quotes.
+      if (!closingSymbols.length) {
+        // Double quote is not inside a substitution: escape by flushing 'expr' into 'res' up to current 'idx' before writing the escape symbol '\'.
         // The '"' will be written on the next flush.
         res += str.slice(fromExprIdx, idx);
         res += "\\";
+        if (prev === "\\") {
+          // If the quote was already escaped we need to add a full escaped backslash.
+          res += "\\";
+        }
         fromExprIdx = idx;
+      } else if (prev !== "\\") {
+        // Double quote is inside an expansion and not escaped. To be closed by a matching (unescaped) double quote.
+        // Found unescaped double quote inside an expansion. To be closed by a matching (unescaped) double quote.
+        closingSymbols.push('"');
       }
     }
     beforePrev = prev;
     prev = cur;
   }
   // Final flush of 'expr'.
-  return res + str.slice(fromExprIdx);
+  res += str.slice(fromExprIdx);
+  return res;
 }
 
 function escapeSingleQuotesWithinSingleQuotes(str) {
@@ -100,8 +112,8 @@ async function compute(entries, shell) {
     const script = shellAssignments + echo;
     const output = await evalShell(shell, script);
     outputs[name] = output;
-    // Wrap output in single quotes to prevent any further expansion.
-    shellAssignments += `${name}='${escapeSingleQuotesWithinSingleQuotes(output)}'\n`;
+    // Wrap output in single quotes to prevent expansion of any expressions in the output.
+    shellAssignments += `${name}='${escapeSingleQuotesWithinSingleQuotes(output )}'\n`;
   }
   return outputs;
 }
