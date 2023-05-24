@@ -226,7 +226,7 @@ test("bash expression in output is not evaluated in assignment", async () => {
   expect(res).toEqual({ echo_x: "$(echo x)", echo_echo_x: "$(echo x)" });
 });
 
-test("unclosed backtick (command substitution) yields error", () => {
+test("unclosed backtick (command substitution) yields error that includes script and error message", () => {
   expect.assertions(1);
   const expected = new Error(
     `script\n  echo -n "\`"\nfailed with error\n  /bin/bash: line 1: unexpected EOF while looking for matching \`\`'\n  /bin/bash: line 2: syntax error: unexpected end of file\n`
@@ -234,4 +234,16 @@ test("unclosed backtick (command substitution) yields error", () => {
   return compute([{ key: "err", expr: "`" }], BASH).catch((e) =>
     expect(e).toEqual(expected)
   );
+});
+
+test("output names that aren't valid Bash variable names don't leak errors into the next evaluation", async () => {
+  // If "c" has an assignment to output "a-b", then that assignment will fail and "c" will include the error message of that failure.
+  const res = await compute(
+    [
+      { name: "a-b", expr: "x" },
+      { name: "c", expr: "y" },
+    ],
+    BASH
+  );
+  expect(res).toEqual({ "a-b": "x", c: "y" });
 });

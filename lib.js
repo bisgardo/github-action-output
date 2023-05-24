@@ -101,8 +101,11 @@ function escapeSingleQuotesWithinSingleQuotes(str) {
   return str.replaceAll(`'`, `'\\''`);
 }
 
-// It actually looks like we can rely on the order or inputs!
-// Well, for now at least...
+function isValidBashVariableName(name) {
+  return /^[_a-zA-Z][_a-zA-Z0-9]*$/.test(name);
+}
+
+// It actually looks like we can rely on the order or inputs! Well, for now at least...
 async function compute(entries, shell) {
   const outputs = {};
   let shellAssignments = "";
@@ -112,8 +115,11 @@ async function compute(entries, shell) {
     const script = shellAssignments + echo;
     const output = await evalShell(shell, script);
     outputs[name] = output;
-    // Wrap output in single quotes to prevent expansion of any expressions in the output.
-    shellAssignments += `${name}='${escapeSingleQuotesWithinSingleQuotes(output)}'\n`;
+    // If 'name' is a valid Bash variable, append assignment of the value for use in subsequent evaluations.
+    // Output is wrapped in single quotes to prevent expansion of any expressions in the output.
+    if (isValidBashVariableName(name)) {
+      shellAssignments += `${name}='${escapeSingleQuotesWithinSingleQuotes(output)}'\n`;
+    }
   }
   return outputs;
 }
