@@ -113,7 +113,7 @@ async function compute(entries, shell) {
     const output = await evalShell(shell, script);
     outputs[name] = output;
     // Wrap output in single quotes to prevent expansion of any expressions in the output.
-    shellAssignments += `${name}='${escapeSingleQuotesWithinSingleQuotes(output )}'\n`;
+    shellAssignments += `${name}='${escapeSingleQuotesWithinSingleQuotes(output)}'\n`;
   }
   return outputs;
 }

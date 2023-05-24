@@ -25,6 +25,6 @@ compute(entries, SHELL)
     writeFileSync(outputFile, outputFileContents, { encoding: "utf8" })
   )
   .catch((err) =>
-    // TODO Report write error properly.
+    // TODO Report write error properly and ensure that the step is marked as failed.
     console.error(`error: cannot write output file ${outputFile}:`, err)
   );
