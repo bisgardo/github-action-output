@@ -90,7 +90,7 @@ function wrapInDoubleQuotes(str) {
     beforePrev = prev;
     prev = cur;
   }
-  // Final flush of 'expr'.
+  // Final flush.
   escapedStr += str.slice(nextFlushIdx);
   return `"${escapedStr}"`;
 }

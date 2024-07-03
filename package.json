@@ -1,12 +1,12 @@
 {
-  "name": "github-action-echo",
+  "name": "output",
   "version": "1.0.0",
-  "description": "GitHub Action for evaluating a shell expression and writing the result to a named output.",
+  "description": "GitHub Action for evaluating Bash expressions with echo and storing the results in named outputs.",
   "author": "Michael Bisgaard Olesen",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bisgardo/github-action-echo.git"
+    "url": "git+https://github.com/bisgardo/output.git"
   },
   "main": "index.js",
   "scripts": {

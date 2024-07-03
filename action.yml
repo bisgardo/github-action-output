@@ -1,5 +1,5 @@
-name: "Echo to outputs"
-description: "Evaluate bash expressions and echo them to named outputs."
+name: "Output"
+description: "Evaluate Bash expressions using echo and store the results in named outputs."
 author: Michael Bisgaard Olesen
 inputs: {} # dynamic
 outputs: {} # same as inputs
